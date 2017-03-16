@@ -46,6 +46,7 @@
     <Compile Include="Scripts\UpdateValidationsInHelp.ps1" />
     <Compile Include="Scripts\Utilities\CoresightKerberosConfiguration.psm1" />
     <Compile Include="Scripts\Utilities\PISECCONFIGEXPORT.psm1" />
+    <Compile Include="Scripts\Utilities\BowTie_PIDataArchive.svg" />
     <Compile Include="Testing\ExecutePester.ps1" />
     <Compile Include="Testing\ExecutePSScriptAnalyzer.ps1" />
     <Compile Include="Testing\ImportPester.ps1" />

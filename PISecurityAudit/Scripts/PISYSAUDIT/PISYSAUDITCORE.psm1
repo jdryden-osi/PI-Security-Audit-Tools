@@ -4959,6 +4959,167 @@ END {}
 #***************************
 }
 
+function Write-PISysAudit_BowTieDiagrams
+{
+<#
+.SYNOPSIS
+Generate Bow Tie Diagrams for a table of Audit Results.
+(Core functionality) 
+.DESCRIPTION
+Uses the SVG templates in Scripts\Utilities to generate SVG documents
+that map audit results to the corresponding section of the role's 
+bow tie diagram.
+
+Generated files placed in the Exports folder.
+#>
+[CmdletBinding(DefaultParameterSetName="Default", SupportsShouldProcess=$false)]     
+param(
+		[parameter(Mandatory=$true, Position=0, ParameterSetName = "Default")]
+		[alias("at")]
+		[System.Collections.HashTable]
+		$AuditHashTable,
+		[parameter(Mandatory=$false, ParameterSetName = "Default")]
+		[alias("cpt")]
+		$ComputerParamsTable,
+		[parameter(Mandatory=$false, ParameterSetName = "Default")]
+		[alias("dbgl")]
+		[int]
+		$DBGLevel = 0)
+BEGIN {}
+PROCESS
+{		
+	$fn = GetFunctionName
+
+	try
+	{
+		# Get the current timestamp for naming the file uniquely.
+		$now = Get-Date
+		$reportTimestamp = $now.ToString("dd-MMM-yyyy HH:mm:ss")
+		$reportFileTimestamp = $now.ToString("yyyy-MM-dd_HH-mm-ss")
+
+		# Get the Export and Scripts path.
+		$exportPath = (Get-Variable "ExportPath" -Scope "Global").Value
+		$scriptsPath = (Get-Variable "ScriptsPath" -Scope "Global").Value
+
+		# Initialize array to hold list of generated files
+		$generatedReports = @()
+
+		# PI Data Archive: load template
+		$daTemplatePath = PathConcat -ParentPath $scriptsPath -ChildPath "Utilities\BowTie_PIDataArchive.svg"
+		$daTemplate = Get-Content -Path $daTemplatePath
+
+		# PI AF Server: load template
+		# .......
+		# TO DO
+		# .......
+
+		# PI Coresight: load template
+		# .......
+		# TO DO
+		# .......
+
+		foreach($machine in $ComputerParamsTable.GetEnumerator())
+		{
+			# Filter audit results to return only this machine. Skip if no results
+			$allMachineResults = $AuditHashTable.GetEnumerator() | Where-Object { $_.Value.ServerName -ieq $machine.Name }
+			if($null -eq $allMachineResults) { continue }
+			
+			if($machine.Value.AuditRoleType -contains 'PIDataArchive')
+			{
+				# Filter machine results for PI Data Archive results, skip PI Data Archive bowtie if empty
+				$dataArchiveResults = $allMachineResults.GetEnumerator() | Where-Object { $_.Value.ID -ilike 'AU2*' }
+				if($null -eq $dataArchiveResults) { continue }
+
+				# Filter results for Computer + PI Data Archive results
+				$relevantResults = $allMachineResults.GetEnumerator() | Where-Object { $_.Value.ID -ilike 'AU1*' -or $_.Value.ID -ilike 'AU2*' }
+				
+				# Get template, set export path
+				$svgDoc = $daTemplate
+				$fileName = "BowTie_$($machine.Name)_PIDataArchive_$reportFileTimestamp.svg"
+				$fileToExport = PathConcat -ParentPath $exportPath -ChildPath $fileName
+
+				# Set Title on SVG
+				$titleString = "PI Data Archive Bow Tie Diagram"
+				$svgDoc = $svgDoc -replace '%Title%', $titleString
+
+				# Set timestamp
+				$svgDoc = $svgDoc -replace '%Timestamp%', $reportTimestamp
+
+				# Set machine name
+				$svgDoc = $svgDoc -replace '%MachineName%', $machine.Name.ToUpper()
+
+				# Iterate through results, apply colors for results
+				foreach($item in $relevantResults.GetEnumerator())
+				{
+					$auditItem = $item.Value
+
+					# Set item color
+					if($auditItem.AuditItemValue -eq $true)
+					{
+						$class = 'pass'
+					}
+					elseif($auditItem.AuditItemValue -eq $false)
+					{
+						switch($auditItem.Severity.ToLower())
+						{
+							'low'      { $class = 'low' } 
+							'moderate' { $class = 'moderate' } 
+							'severe'   { $class = 'severe' } 
+							default    { $class = 'na' } 
+						}
+					}
+					else
+					{
+						$class = 'na'
+					}
+
+					# Replace each occurrance of %AUxxxxx% with the class
+					# Colors defined in CSS style of SVG template
+					$svgDoc = $svgDoc -replace "%$($auditItem.ID)%", $class
+					
+				}
+
+				# Save SVG BowTie report, add path to list of reports
+				$svgDoc | Out-File -FilePath $fileToExport
+				$generatedReports += $fileToExport
+			} 
+
+			if($machine.Value.AuditRoleType -contains 'PIAFServer')
+			{
+				# .......
+				# TO DO
+				# .......
+			}
+
+			if($machine.Value.AuditRoleType -contains 'PICoresightServer')
+			{
+				# .......
+				# TO DO
+				# .......
+			}
+		}
+
+		return $generatedReports
+	}
+	catch
+	{
+		# Return the error message.
+		$msgTemplate = "A problem occurred during generation of the report"
+		$msg = [string]::Format($msgTemplate, $_.Exception.Message)
+		Write-PISysAudit_LogMessage $msg "Error" $fn -eo $_		
+		return $null
+	}	
+}	
+
+END {}
+
+#***************************
+#End of exported function
+#***************************
+}
+
+
+
 function New-PISysAuditReport
 {
 <#  
@@ -5178,6 +5339,7 @@ PROCESS
 	# ....................................................................................		
 	$ActivityMsg = "Generate report"
 	if($ShowUI) { Write-Progress -activity $ActivityMsg -Status "in progress..." -Id 1 }
+	$bowTieName = Write-PISysAudit_BowTieDiagrams -at $auditHashTable -cpt $ComputerParamsTable -dbgl $DBGLevel
 	$reportName = Write-PISysAuditReport $auditHashTable -obf $ObfuscateSensitiveData -dtl $DetailReport -dbgl $DBGLevel
 	if($ShowUI) { Write-Progress -activity $ActivityMsg -Status $statusMsgCompleted -Id 1 -completed }
 	
@@ -5293,6 +5455,7 @@ Export-ModuleMember New-PISysAudit_PasswordOnDisk
 Export-ModuleMember New-PISysAuditComputerParams
 Export-ModuleMember New-PISysAuditReport
 Export-ModuleMember Write-PISysAuditReport
+Export-ModuleMember Write-PISysAudit_BowTieDiagrams
 Export-ModuleMember Write-PISysAudit_LogMessage
 Export-ModuleMember -Alias piauditparams
 Export-ModuleMember -Alias pisysauditparams

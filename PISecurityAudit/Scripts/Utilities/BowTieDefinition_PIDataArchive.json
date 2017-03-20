@@ -1,0 +1,221 @@
+{
+  "BowTieType": "PI Data Archive",
+  "BowTieDefinition": {
+    "Threats": [
+      {
+        "Name": "Unauthenticated Access",
+        "Defenses": [
+          {
+            "Name": "Active Directory",
+            "AuditID": "AU10001"
+          },
+          {
+            "Name": "IP Verify Source"
+          },
+          {
+            "Name": "DNS Forward/Reverse"
+          },
+          {
+            "Name": "Firewall Restrictions",
+            "AuditID": "AU10003"
+          },
+          {
+            "Name": "Transport Security",
+            "AuditID": "AU20012"
+          }
+        ]
+      },
+      {
+        "Name": "Administrative Access to OS",
+        "Defenses": [
+          {
+            "Name": "Private Admin LAN"
+          },
+          {
+            "Name": "UAC",
+            "AuditID": "AU10005"
+          },
+          {
+            "Name": "Signed Scripts and Exe",
+            "AuditID": "AU10004"
+          },
+          {
+            "Name": "Management Protocols"
+          },
+          {
+            "Name": "Strong Authentication"
+          }
+        ]
+      },
+      {
+        "Name": "Authenticated PI Data Access",
+        "Defenses": [
+          {
+            "Name": "No PI Trust"
+          },
+          {
+            "Name": "No piadmin User",
+            "AuditID": "AU20002"
+          },
+          {
+            "Name": "Read Only Roles",
+            "AuditID": "AU20001"
+          },
+          {
+            "Name": "Write Access"
+          }
+        ]
+      },
+      {
+        "Name": "Exploit Vulnerable Service",
+        "Defenses": [
+          {
+            "Name": "App Whitelisting",
+            "AuditID": "AU10004"
+          },
+          {
+            "Name": "PI & OS Hardening"
+          },
+          {
+            "Name": "PI & OS Updates",
+            "AuditID": "AU20003"
+          },
+          {
+            "Name": "Server Core OS",
+            "AuditID": "AU10002"
+          }
+        ]
+      },
+      {
+        "Name": "Overload PI Server",
+        "Defenses": [
+          {
+            "Name": "HA Load Balancing",
+            "AuditID": "AU20009"
+          },
+          {
+            "Name": "Multi-Collective"
+          },
+          {
+            "Name": "Multi-Tier Architecture"
+          },
+          {
+            "Name": "Expensive Query Limits",
+            "AuditID": "AU20006"
+          },
+          {
+            "Name": "PI Configuration"
+          }
+        ]
+      }
+    ],
+    "Impacts": [
+      {
+        "Name": "Unauthorized Access to Data",
+        "Mitigations": [
+          {
+            "Name": "HA Members",
+            "AuditID": "AU20009"
+          },
+          {
+            "Name": "PItoPI and PICC"
+          },
+          {
+            "Name": "Display Permissions"
+          },
+          {
+            "Name": "Point-Level Permissions"
+          }
+        ]
+      },
+      {
+        "Name": "Missing or Tainted Data",
+        "Mitigations": [
+          {
+            "Name": "Custom Analytics"
+          },
+          {
+            "Name": "Data Validation"
+          },
+          {
+            "Name": "Telemetry"
+          },
+          {
+            "Name": "Display Validation"
+          }
+        ]
+      },
+      {
+        "Name": "Manipulation of Configuration",
+        "Mitigations": [
+          {
+            "Name": "VM Snapshots"
+          },
+          {
+            "Name": "Change Management"
+          },
+          {
+            "Name": "Recovery Plan"
+          },
+          {
+            "Name": "PI Backups",
+            "AuditID": "AU20013"
+          },
+          {
+            "Name": "Audit Trails"
+          }
+        ]
+      },
+      {
+        "Name": "Spread Malware to Clients",
+        "Mitigations": [
+          {
+            "Name": "EMET"
+          },
+          {
+            "Name": "UAC Enabled"
+          },
+          {
+            "Name": "Macro/VBA Disabled"
+          }
+        ]
+      },
+      {
+        "Name": "Pivot to Other Servers",
+        "Mitigations": [
+          {
+            "Name": "App Whitelisting",
+            "AuditID": "AU10004"
+          },
+          {
+            "Name": "Firewall Restrictions",
+            "AuditID": "AU10003"
+          },
+          {
+            "Name": "Service Hardening"
+          },
+          {
+            "Name": "No Internet Access",
+            "AuditID": "AU10009"
+          }
+        ]
+      },
+      {
+        "Name": "Service Delayed or Unresponsive",
+        "Mitigations": [
+          {
+            "Name": "Bandwidth Throttling"
+          },
+          {
+            "Name": "Query Limits",
+            "AuditID": "AU20006"
+          },
+          {
+            "Name": "NOC ALert Response",
+            "AuditID": "AU10006"
+          }
+        ]
+      }
+    ]
+  }
+}

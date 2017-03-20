@@ -4815,7 +4815,22 @@ PROCESS
 				$tableRows+= $tableRow
 			}
 
-
+			# Get contents of generated bow tie SVG reports
+			$bowTieContents = @()
+			foreach($machine in $bowTieReports.GetEnumerator())
+			{
+				foreach($bowTiePath in $machine.Value)
+				{
+					$bowTieContent = Get-Content $bowTiePath
+					#strip DOCTYPE line from file contents, first line
+					$toAdd = $bowTieContent[1..$bowTieContent.Count]
+					$bowTieContents += '<div style="border: 2px solid #ddd; display: inline-block">'
+					$bowTieContents += $toAdd
+					$bowTieContents += "<p><a href=`"$bowTiePath`" target=`"_blank`">Link to generated diagram file</a></p>"
+					$bowTieContents += '</div>'
+					$bowTieContents += "`r`n`t`t`t`t`t<br/>`r`n"
+				}
+			}
 
 			# Get failed results and construct the recommendation section
 			$fails=@()
@@ -4935,6 +4950,8 @@ PROCESS
 					</table>
 			
 					<br/>
+
+					$bowTieContents
 
 					$Recommendations
 					

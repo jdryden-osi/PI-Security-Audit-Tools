@@ -1,6 +1,8 @@
 {
-  "BowTieType": "PI Data Archive",
-  "BowTieDefinition": {
+  "Type": "PI Data Archive",
+  "Circle": "PI Data Archive Compromise",
+  "Rectangle": "PI Data Archive Server",
+  "Definition": {
     "Threats": [
       {
         "Name": "Unauthenticated Access",
@@ -74,10 +76,10 @@
             "AuditID": "AU10004"
           },
           {
-            "Name": "PI & OS Hardening"
+            "Name": "PI &#038; OS Hardening"
           },
           {
-            "Name": "PI & OS Updates",
+            "Name": "PI &#038; OS Updates",
             "AuditID": "AU20003"
           },
           {

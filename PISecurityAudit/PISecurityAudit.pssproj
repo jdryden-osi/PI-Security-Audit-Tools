@@ -44,9 +44,11 @@
     <Compile Include="Scripts\PISYSAUDIT\PISYSAUDITCHECKLIB5.psm1" />
     <Compile Include="Scripts\PISYSAUDIT\PISYSAUDITCORE.psm1" />
     <Compile Include="Scripts\UpdateValidationsInHelp.ps1" />
+    <Compile Include="Scripts\Utilities\BowTieDefinition_PIDataArchive.json" />
     <Compile Include="Scripts\Utilities\CoresightKerberosConfiguration.psm1" />
     <Compile Include="Scripts\Utilities\PISECCONFIGEXPORT.psm1" />
     <Compile Include="Scripts\Utilities\BowTie_PIDataArchive.svg" />
+    <Compile Include="Scripts\Utilities\GenerateBowTieTemplate.ps1" />
     <Compile Include="Testing\ExecutePester.ps1" />
     <Compile Include="Testing\ExecutePSScriptAnalyzer.ps1" />
     <Compile Include="Testing\ImportPester.ps1" />

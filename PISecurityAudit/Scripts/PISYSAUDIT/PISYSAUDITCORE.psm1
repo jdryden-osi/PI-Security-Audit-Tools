@@ -4710,6 +4710,10 @@ param(
 		[boolean]
 		$DetailReport = $true,
 		[parameter(Mandatory=$false, ParameterSetName = "Default")]
+		[alias("cpt")]
+		[System.Collections.HashTable]
+		$ComputerParamsTable,
+		[parameter(Mandatory=$false, ParameterSetName = "Default")]
 		[alias("dbgl")]
 		[int]
 		$DBGLevel = 0)
@@ -4725,6 +4729,8 @@ PROCESS
 		$reportTimestamp = $now.ToString("dd-MMM-yyyy HH:mm:ss")
 		$reportFileTimestamp = $now.ToString("yyyy-MM-dd_HH-mm-ss")		
 		
+		# Generate Bow Tie diagrams and get file paths
+		$bowTieReports = Write-PISysAudit_BowTieDiagrams -at $AuditHashTable -cpt $ComputerParamsTable -ts $now -dbgl $DBGLevel
 
 		# Get the Scripts path.
 		$exportPath = (Get-Variable "ExportPath" -Scope "Global").Value												
@@ -5018,7 +5024,12 @@ param(
 		$AuditHashTable,
 		[parameter(Mandatory=$false, ParameterSetName = "Default")]
 		[alias("cpt")]
+		[System.Collections.HashTable]
 		$ComputerParamsTable,
+		[parameter(Mandatory=$false, ParameterSetName = "Default")]
+		[alias("ts")]
+		[datetime]
+		$ReportTimestamp,
 		[parameter(Mandatory=$false, ParameterSetName = "Default")]
 		[alias("dbgl")]
 		[int]
@@ -5031,7 +5042,8 @@ PROCESS
 	try
 	{
 		# Get the current timestamp for naming the file uniquely.
-		$now = Get-Date
+		if($ReportTimestamp) { $now = $ReportTimestamp }
+		else { $now = Get-Date }
 		$reportTimestamp = $now.ToString("dd-MMM-yyyy HH:mm:ss")
 		$reportFileTimestamp = $now.ToString("yyyy-MM-dd_HH-mm-ss")
 
@@ -5039,8 +5051,10 @@ PROCESS
 		$exportPath = (Get-Variable "ExportPath" -Scope "Global").Value
 		$scriptsPath = (Get-Variable "ScriptsPath" -Scope "Global").Value
 
-		# Initialize array to hold list of generated files
-		$generatedReports = @()
+		# Initialize hashtable to hold generated report info
+		# Key: machine name (UPPERCASE)
+		# Value: array of report filepaths for this machine
+		$generatedReports = @{}
 
 		# PI Data Archive: load template
 		$daTemplatePath = PathConcat -ParentPath $scriptsPath -ChildPath "Utilities\BowTie_PIDataArchive.svg"
@@ -5119,7 +5133,14 @@ PROCESS
 
 				# Save SVG BowTie report, add path to list of reports
 				$svgDoc | Out-File -FilePath $fileToExport
-				$generatedReports += $fileToExport
+				if($generatedReports.Contains($machine.Name.ToUpper())) 
+				{
+					$generatedReports[$machine.Name.ToUpper()] += $fileToExport
+				}
+				else 
+				{
+					$generatedReports += @{$machine.Name.ToUpper()=@($fileToExport)} 
+				}
 			} 
 
 			if($machine.Value.AuditRoleType -contains 'PIAFServer')
@@ -5378,8 +5399,7 @@ PROCESS
 	# ....................................................................................		
 	$ActivityMsg = "Generate report"
 	if($ShowUI) { Write-Progress -activity $ActivityMsg -Status "in progress..." -Id 1 }
-	$bowTieName = Write-PISysAudit_BowTieDiagrams -at $auditHashTable -cpt $ComputerParamsTable -dbgl $DBGLevel
-	$reportName = Write-PISysAuditReport $auditHashTable -obf $ObfuscateSensitiveData -dtl $DetailReport -dbgl $DBGLevel
+	$reportName = Write-PISysAuditReport $auditHashTable -obf $ObfuscateSensitiveData -dtl $DetailReport -cpt $ComputerParamsTable -dbgl $DBGLevel
 	if($ShowUI) 
 	{ 
 		Write-Progress -activity $ActivityMsg -Status $statusMsgCompleted -Id 1 -PercentComplete 100

@@ -44,6 +44,7 @@
     <Compile Include="Scripts\PISYSAUDIT\PISYSAUDITCHECKLIB5.psm1" />
     <Compile Include="Scripts\PISYSAUDIT\PISYSAUDITCORE.psm1" />
     <Compile Include="Scripts\UpdateValidationsInHelp.ps1" />
+    <Compile Include="Scripts\Utilities\BowTieDefinition_PIAFServer.json" />
     <Compile Include="Scripts\Utilities\BowTieDefinition_PIDataArchive.json" />
     <Compile Include="Scripts\Utilities\CoresightKerberosConfiguration.psm1" />
     <Compile Include="Scripts\Utilities\PISECCONFIGEXPORT.psm1" />

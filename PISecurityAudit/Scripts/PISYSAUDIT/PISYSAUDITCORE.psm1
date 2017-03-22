@@ -5078,9 +5078,8 @@ PROCESS
 		$daTemplate = Get-Content -Path $daTemplatePath
 
 		# PI AF Server: load template
-		# .......
-		# TO DO
-		# .......
+		$afTemplatePath = PathConcat -ParentPath $scriptsPath -ChildPath "Utilities\BowTie_PIAFServer.svg"
+		$afTemplate = Get-Content -Path $afTemplatePath
 
 		# PI Coresight: load template
 		# .......
@@ -5162,9 +5161,69 @@ PROCESS
 
 			if($machine.Value.AuditRoleType -contains 'PIAFServer')
 			{
-				# .......
-				# TO DO
-				# .......
+				# Filter machine results for PI Data Archive results, skip PI Data Archive bowtie if empty
+				$afResults = $allMachineResults.GetEnumerator() | Where-Object { $_.Value.ID -ilike 'AU3*' }
+				if($null -eq $afResults) { continue }
+
+				# Filter results for Computer + PI Data Archive results
+				$relevantResults = $allMachineResults.GetEnumerator() | Where-Object { $_.Value.ID -ilike 'AU1*' -or $_.Value.ID -ilike 'AU3*' }
+				
+				# Get template, set export path
+				$svgDoc = $afTemplate
+				$fileName = "BowTie_$($machine.Name)_PIAFServer_$reportFileTimestamp.svg"
+				$fileToExport = PathConcat -ParentPath $exportPath -ChildPath $fileName
+
+				# Set Title on SVG
+				$titleString = "PI AF Server Bow Tie Diagram"
+				$svgDoc = $svgDoc -replace '%Title%', $titleString
+
+				# Set timestamp
+				$svgDoc = $svgDoc -replace '%Timestamp%', $reportTimestamp
+
+				# Set machine name
+				$svgDoc = $svgDoc -replace '%MachineName%', $machine.Name.ToUpper()
+
+				# Iterate through results, apply colors for results
+				foreach($item in $relevantResults.GetEnumerator())
+				{
+					$auditItem = $item.Value
+
+					# Set item color
+					if($auditItem.AuditItemValue -eq $true)
+					{
+						$class = 'pass'
+					}
+					elseif($auditItem.AuditItemValue -eq $false)
+					{
+						switch($auditItem.Severity.ToLower())
+						{
+							'low'      { $class = 'low' } 
+							'moderate' { $class = 'moderate' } 
+							'severe'   { $class = 'severe' } 
+							default    { $class = 'na' } 
+						}
+					}
+					else
+					{
+						$class = 'na'
+					}
+
+					# Replace each occurrance of %AUxxxxx% with the class
+					# Colors defined in CSS style of SVG template
+					$svgDoc = $svgDoc -replace "%$($auditItem.ID)%", $class
+					
+				}
+
+				# Save SVG BowTie report, add path to list of reports
+				$svgDoc | Out-File -FilePath $fileToExport
+				if($generatedReports.Contains($machine.Name.ToUpper())) 
+				{
+					$generatedReports[$machine.Name.ToUpper()] += $fileToExport
+				}
+				else 
+				{
+					$generatedReports += @{$machine.Name.ToUpper()=@($fileToExport)} 
+				}
 			}
 
 			if($machine.Value.AuditRoleType -contains 'PICoresightServer')

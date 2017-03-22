@@ -1,10 +1,15 @@
 
-$definitionFilePath = "C:\Users\Jdryden\All Files\Documents\PowerShell\PI-Security-Audit-Tools-jdryden\PI-Security-Audit-Tools\PISecurityAudit\Scripts\Utilities\BowTieDefinition_PIDataArchive.json"
+$UtilitiesRoot = Split-Path -Parent -Path $MyInvocation.MyCommand.Definition
+$definitionFilePath = Join-Path -Path $UtilitiesRoot -ChildPath "BowTieDefinition_PIAFServer.json"
+
 $bowtieDefinition = Get-Content $definitionFilePath 
 $bowtieObject = $bowtieDefinition | ConvertFrom-Json
 
 $threats = $bowtieObject.Definition.Threats
 $impacts = $bowtieObject.Definition.Impacts
+
+# Defense/Mitigation box height
+$dmHeight = 60
 
 # Initialize SVG doc
 $svgDoc = @"
@@ -102,12 +107,12 @@ function SplitText($text, $width, $upperY, $lowerY, $scale=1)
 			$workingStr += $str
 			if($workingStr.Length -gt ($width / 6.34 / $scale))
 			{
-				$lineSplitStrs += $workingStr.SubString(0, ($workingStr.Length - $str.Length))
+				$lineSplitStrs += $workingStr.SubString(0, ($workingStr.Length - $str.Length)).TrimEnd()
 				$workingStr = $str + ' '
 			}
 			else { $workingStr += ' '}
 		}
-		$lineSplitStrs += $workingStr
+		$lineSplitStrs += $workingStr.TrimEnd()
 		$lineSplitStrs = $lineSplitStrs | Where-Object { $_ -NE '' }
 		$middle = $upperY + ($lowerY - $upperY)/2
 		$topLine = $middle - 20*($lineSplitStrs.Count/2) + 15
@@ -123,6 +128,8 @@ function SplitText($text, $width, $upperY, $lowerY, $scale=1)
 	}
 }
 
+$initialX = 20
+$initialY = 70
 
 # Find Centerline, to hold middle circle
 if($threats.Count -ge $impacts.Count ) { $fewer = $impacts.Count } else { $fewer = $threats.Count }
@@ -153,14 +160,14 @@ foreach($threat in $threats)
 		$svgDoc += "`t<text x=`"$($x+50)`" y=`"$($line.y)`">$($line.text)</text>`r`n"
 	}
 	# Draw defenses
-	$y += 25
+	$y += (50 - $dmHeight/2)
 	foreach($defense in $threat.Defenses)
 	{
 		$x += 120
-		$svgDoc += "`t<rect x=`"$x`" y=`"$y`" width=`"100`" height=`"50`""
-		if($defense.AuditID) { $svgDoc += " class=`"%$($defense.AuditID)`"" }
+		$svgDoc += "`t<rect x=`"$x`" y=`"$y`" width=`"100`" height=`"$dmHeight`""
+		if($defense.AuditID) { $svgDoc += " class=`"%$($defense.AuditID)%`"" }
 		$svgDoc += "/>`r`n"
-		$splitText = SplitText $defense.Name 100 $y ($y+50)
+		$splitText = SplitText $defense.Name 100 $y ($y+$dmHeight)
 		foreach($line in $splitText)
 		{
 			$svgDoc += "`t<text x=`"$($x+50)`" y=`"$($line.y)`">$($line.text)</text>`r`n"
@@ -168,7 +175,7 @@ foreach($threat in $threats)
 	}
 
 	# Move down to next branch Y
-	$y += 145
+	$y += (120 + $dmHeight/2)
 } # End Left half
 
 # Draw the circle and middle rectangle
@@ -209,13 +216,13 @@ foreach($impact in $impacts)
 	$svgDoc += "`t<line x1=`"$linesMeetX`" y1=`"$circleY`" x2=`"$rightHalfX`" y2=`"$y`"/>`r`n"
 
 	# Draw mitigations
-	$y -= 25
+	$y -= ($dmHeight/2)
 	foreach($mitigation in $impact.Mitigations)
 	{
-		$svgDoc += "`t<rect x=`"$x`" y=`"$y`" width=`"100`" height=`"50`""
-		if($mitigation.AuditID) { $svgDoc += " class=`"%$($mitigation.AuditID)`"" }
+		$svgDoc += "`t<rect x=`"$x`" y=`"$y`" width=`"100`" height=`"$dmHeight`""
+		if($mitigation.AuditID) { $svgDoc += " class=`"%$($mitigation.AuditID)%`"" }
 		$svgDoc += "/>`r`n"
-		$splitText = SplitText $mitigation.Name 100 $y ($y+50)
+		$splitText = SplitText $mitigation.Name 100 $y ($y+$dmHeight)
 		foreach($line in $splitText)
 		{
 			$svgDoc += "`t<text x=`"$($x+50)`" y=`"$($line.y)`">$($line.text)</text>`r`n"
@@ -224,7 +231,7 @@ foreach($impact in $impacts)
 	}
 
 	# Draw impact name
-	$y -= 25
+	$y -= (50 - $dmHeight/2)
 	$svgDoc += "`t<rect x=`"$x`" y=`"$y`" width=`"100`" height=`"100`" class=`"impact`"/>`r`n"
 	$splitText = SplitText $impact.Name 100 $y ($y+100)
 	foreach($line in $splitText)
@@ -249,4 +256,6 @@ $svgDoc = $svgDoc -replace '(svg version.*)height=\"\d+\"', ('$1height="{0}"' -f
 $svgDoc = $svgDoc -replace '(svg version.*)viewBox=\".+?\"', ('$1viewBox="0 0 {0} {1}"' -f $maxX, $maxY)
 
 $svgDoc += "</svg>"
-$svgDoc | Out-File "C:\Users\Jdryden\All Files\Documents\PowerShell\PI-Security-Audit-Tools-jdryden\PI-Security-Audit-Tools\PISecurityAudit\Export\GeneratedBowTie.svg"
+$ExportRoot = Join-Path -Path (Split-Path -Path (Split-Path -Path $UtilitiesRoot -Parent) -Parent) -ChildPath 'Export'
+$exportName = "BowTie_$($bowtieObject.Type -split ' ' -join '')"
+$svgDoc | Out-File (Join-Path -Path $ExportRoot -ChildPath "$exportName.svg")

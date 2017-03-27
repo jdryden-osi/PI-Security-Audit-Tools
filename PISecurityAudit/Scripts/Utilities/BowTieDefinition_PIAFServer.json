@@ -1,7 +1,7 @@
 {
   "Type": "PI AF Server",
-  "Circle": "PI AF Server Compromise",
-  "Rectangle": "PI AF Server",
+  "TopEvent": "PI AF Server Compromise",
+  "Hazard": "PI AF Server",
   "Definition": {
     "Threats": [
       {
@@ -76,8 +76,12 @@
             "AuditID": "AU30001"
           },
           {
-            "Name": "PI &#038; OS Updates",
+            "Name": "PI Updates",
             "AuditID": "AU30006"
+          },
+          {
+            "Name": "OS Updates",
+            "AuditID":  "AU10008"
           },
           {
             "Name": "App Whitelisting",
@@ -106,7 +110,7 @@
     "Impacts": [
       {
         "Name": "Unauthorized Access to Data",
-        "Mitigations": [
+        "Reductions": [
           {
             "Name": "AF Object Level Permissions"
           },
@@ -124,7 +128,7 @@
       },
       {
         "Name": "Missing or Tainted Data",
-        "Mitigations": [
+        "Reductions": [
           {
             "Name": "AF Attributes Read Only"
           },
@@ -141,7 +145,7 @@
       },
       {
         "Name": "Manipulation of Configuration",
-        "Mitigations": [
+        "Reductions": [
           {
             "Name": "VM Snapshots"
           },
@@ -158,7 +162,7 @@
       },
       {
         "Name": "Spread Malware to Clients",
-        "Mitigations": [
+        "Reductions": [
           {
             "Name": "Antivirus"
           },
@@ -178,7 +182,7 @@
       },
       {
         "Name": "Pivot to Other Servers",
-        "Mitigations": [
+        "Reductions": [
           {
             "Name": "Firewall Restrictions",
             "AuditID": "AU10003"
@@ -199,7 +203,7 @@
       },
       {
         "Name": "Service Delayed or Unresponsive",
-        "Mitigations": [
+        "Reductions": [
           {
             "Name": "NOC ALert Response",
             "AuditID": "AU10006"
@@ -208,8 +212,7 @@
             "Name": "Bandwidth Throttling"
           },
           {
-            "Name": "Expensive Query Limits",
-            "AuditID": "AU20006"
+            "Name": "Expensive Query Limits"
           },
           {
             "Name": "Diagnostic Data"

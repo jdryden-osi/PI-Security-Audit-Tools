@@ -1,7 +1,7 @@
 {
   "Type": "PI Data Archive",
-  "Circle": "PI Data Archive Compromise",
-  "Rectangle": "PI Data Archive Server",
+  "TopEvent": "PI Data Archive Compromise",
+  "Hazard": "PI Data Archive Server",
   "Definition": {
     "Threats": [
       {
@@ -114,7 +114,7 @@
     "Impacts": [
       {
         "Name": "Unauthorized Access to Data",
-        "Mitigations": [
+        "Reductions": [
           {
             "Name": "HA Members",
             "AuditID": "AU20009"
@@ -132,7 +132,7 @@
       },
       {
         "Name": "Missing or Tainted Data",
-        "Mitigations": [
+        "Reductions": [
           {
             "Name": "Custom Analytics"
           },
@@ -149,7 +149,7 @@
       },
       {
         "Name": "Manipulation of Configuration",
-        "Mitigations": [
+        "Reductions": [
           {
             "Name": "VM Snapshots"
           },
@@ -170,7 +170,7 @@
       },
       {
         "Name": "Spread Malware to Clients",
-        "Mitigations": [
+        "Reductions": [
           {
             "Name": "EMET"
           },
@@ -184,7 +184,7 @@
       },
       {
         "Name": "Pivot to Other Servers",
-        "Mitigations": [
+        "Reductions": [
           {
             "Name": "App Whitelisting",
             "AuditID": "AU10004"
@@ -204,7 +204,7 @@
       },
       {
         "Name": "Service Delayed or Unresponsive",
-        "Mitigations": [
+        "Reductions": [
           {
             "Name": "Bandwidth Throttling"
           },
